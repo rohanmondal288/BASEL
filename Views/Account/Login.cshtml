@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container" style="max-width: 400px; margin-top: 100px; padding: 20px; background-color: #fff; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+    <h2 style="text-align: center; margin-bottom: 20px; font-family: Arial, sans-serif; color: #333;">Login</h2>
+
+    @if (ViewBag.ErrorMessage != null)
+    {
+        <div class="alert alert-danger" style="font-size: 14px; margin-bottom: 15px; color: #a94442; background-color: #f2dede; border-color: #ebccd1; padding: 10px;">
+            @ViewBag.ErrorMessage
+        </div>
+    }
+
+    <form method="post" action="@Url.Action("Login", "Account")">
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label for="username" style="font-size: 16px; color: #555; font-weight: bold;">Username</label>
+            <input type="text" id="username" name="username" class="form-control" required
+                   style="padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; width: 100%; box-sizing: border-box;" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="password" style="font-size: 16px; color: #555; font-weight: bold;">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required
+                   style="padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; width: 100%; box-sizing: border-box;" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px; background-color: #007bff; border: none; border-radius: 8px; color: white; cursor: pointer; transition: background-color 0.3s;">
+            Login
+        </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 15px;">
+        <a href="forgot.cshtml" style="color: #007bff; text-decoration: none; font-size: 14px;">Forgot your password?</a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('username').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && this.value.trim().length > 0) {
+            event.preventDefault();
+            document.getElementById('password').focus();
+        }
+    });
+</script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f7fc;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 400px;
+        margin-top: 100px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-family: Arial, sans-serif;
+        color: #333;
+    }
+
+    .form-group label {
+        font-size: 16px;
+        color: #555;
+        font-weight: bold;
+    }
+
+    .form-group input {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .btn-primary {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        background-color: #007bff;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .alert-danger {
+        font-size: 14px;
+        margin-bottom: 15px;
+        color: #a94442;
+        background-color: #f2dede;
+        border-color: #ebccd1;
+        padding: 10px;
+    }
+
+    a {
+        color: #007bff;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        a:hover {
+            text-decoration: underline;
+        }
+</style>

@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Purchase Order - Project Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Clear form function
+            $('#clearButton').click(function () {
+                $('input[type="text"], input[type="date"], input[type="number"]').val('');
+                $('select').prop('selectedIndex', 0);
+                $('input[type="checkbox"]').prop('checked', false);
+            });
+
+            // Form submit handler (Save)
+            $('#saveButton').click(function (e) {
+                e.preventDefault();
+
+                const data = {
+                    PO_ID: parseInt($('#po-id').val()) || 0,
+                    PO_NO: parseInt($('#po-no').val()) || 0,
+                    PO_DATE: $('#po-date').val(),
+                    CUSTOMER: $('#customer').val() || "",
+                    CIRCLE: $('#circle').val() || "",
+                    PROJECT: $('#project').val() || "",
+                    ACTIVITY: $('#activity').val() || "",
+                    BULK_PO: $('#bulk-po').is(':checked')
+                };
+
+                console.log('Sending Data:', data);
+
+                $.ajax({
+                    url: 'http://localhost:5141/api/purchaseDetails/AddPurchaseDetails',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function () {
+                        alert('Purchase Order Saved Successfully!');
+                    },
+                    error: function (xhr) {
+                        alert('Failed to save Purchase Order: ' + (xhr.responseText || 'Unknown Error'));
+                    }
+                });
+            });
+
+            // List function to fetch and display data
+            $('#listButton').click(function () {
+                $.ajax({
+                    url: 'http://localhost:5141/api/purchaseDetails/ListOfPurchaseDetails',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#purchaseOrderTableBody').empty();
+
+                        if (!data || data.length === 0) {
+                            $('#purchaseOrderTableBody').append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                        } else {
+                            alert("List is Given Below ")
+                            data.forEach(function (item) {
+                                // console.log(item)
+                                $('#purchaseOrderTableBody').append(`
+                                    <tr>
+                                                <td class="border p-2">${item.pO_ID}</td>
+                                                <td class="border p-2">${item.pO_NO}</td>
+                                                <td class="border p-2">${item.pO_DATE}</td>
+                                        <td class="border p-2">${item.customer}</td>
+                                        <td class="border p-2">${item.circle}</td>
+                                        <td class="border p-2">${item.project}</td>
+                                        <td class="border p-2">${item.activity}</td>
+                                    </tr>
+                                `);
+                            });
+                        }
+                    },
+                    error: function () {
+                        alert('Failed to load purchase orders.');
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="container mx-auto p-8">
+        <div class="bg-white shadow-lg rounded-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6">Purchase Order</h1>
+
+            <form>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="po-id" class="block text-gray-700 font-medium">PO ID</label>
+                        <input type="number" id="po-id" class="w-full mt-2 p-3 border rounded-lg" placeholder="Enter PO ID" />
+                    </div>
+
+                    <div>
+                        <label for="po-no" class="block text-gray-700 font-medium">PO Number</label>
+                        <input type="number" id="po-no" class="w-full mt-2 p-3 border rounded-lg" placeholder="Enter PO Number" />
+                    </div>
+
+                    <div>
+                        <label for="po-date" class="block text-gray-700 font-medium">PO Date</label>
+                        <input type="date" id="po-date" class="w-full mt-2 p-3 border rounded-lg" />
+                    </div>
+
+                    <div>
+                        <label for="customer" class="block text-gray-700 font-medium">Select Customer</label>
+                        @Html.DropDownList("Master", ViewBag.MASTER as SelectList, "-- Select --", new { @id = "customer", @class = "w-full p-3 border rounded-lg" })
+                    </div>
+
+                    <div>
+                        <label for="project" class="block text-gray-700 font-medium">Select Project</label>
+                        @Html.DropDownList("Project", ViewBag.PROJECT as SelectList, "-- Select --", new { @id = "project", @class = "w-full p-3 border rounded-lg" })
+                    </div>
+
+                    <div>
+                        <label for="activity" class="block text-gray-700 font-medium">Activity</label>
+                        <input type="text" id="activity" class="w-full mt-2 p-3 border rounded-lg" placeholder="Describe the Activity" />
+                    </div>
+
+                    <div>
+                        <label for="circle" class="block text-gray-700 font-medium">Select Circle</label>
+                        @Html.DropDownList("Circle", ViewBag.CIRCLE as SelectList, "-- Select --", new { @id = "circle", @class = "w-full p-3 border rounded-lg" })
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <input type="checkbox" id="bulk-po" class="mr-2" />
+                    <label for="bulk-po" class="text-gray-700">Comfirm</label>
+                </div>
+
+                <div class="mt-8 flex space-x-4">
+                    <button id="clearButton" type="button" class="bg-gray-600 text-white px-6 py-2 rounded-lg">Clear</button>
+                    <button id="saveButton" type="button" class="bg-blue-600 text-white px-6 py-2 rounded-lg">Save</button>
+                    <button id="listButton" type="button" class="bg-blue-400 text-white px-6 py-2 rounded-lg">List</button>
+                </div>
+            </form>
+
+            <table class="w-full mt-8 border-collapse border border-gray-300">
+                <thead>
+                    <tr>
+                        <th class="border p-2">PO ID</th>
+                        <th class="border p-2">PO Number</th>
+                        <th class="border p-2">PO Date</th>
+                        <th class="border p-2">Customer</th>
+                        <th class="border p-2">Circle</th>
+                        <th class="border p-2">Project</th>
+                        <th class="border p-2">Activity</th>
+                    </tr>
+                </thead>
+                <tbody id="purchaseOrderTableBody"></tbody>
+            </table>
+
+
+            <!--child Table -->
+            @{
+                ViewBag.Title = "Dashboard";
+            }
+
+            <table class="w-full mt-8 border-collapse border border-gray-300" id="dataTable">
+                <thead>
+                    <tr>
+                        <th class="border p-2">SITE ID</th>
+                        <th class="border p-2">SITE NAME</th>
+                        <th class="border p-2">CUSTOMER ITEM CODE</th>
+                        <th class="border p-2">CUSTOMER ITEM NAME</th>
+                        <th class="border p-2">UNIT</th>
+                        <th class="border p-2">QTY</th>
+                        <th class="border p-2">RATE</th>
+                        <th class="border p-2">AMOUNT</th>
+                        <th class="border p-2">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <!-- Site ID Dropdown -->
+                        <td class="border p-2">
+                            @Html.DropDownList("SiteId", ViewBag.SiteIds as List<SelectListItem>, "-- Select Site ID --", new { @class = "w-full border p-1 siteId" })
+                        </td>
+
+                        <!-- Site Name Dropdown -->
+                        <td class="border p-2">
+                            @Html.DropDownList("SiteName", ViewBag.SiteNames as List<SelectListItem>, "-- Select Site Name --", new { @class = "w-full border p-1 siteName" })
+                        </td>
+
+                        <td class="border p-2"><input type="text" class="w-full border p-1" placeholder="Item Code" /></td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1" placeholder="Item Name" /></td>
+                        <td class="border p-2"><input type="text" class="w-full border p-1" placeholder="Unit" /></td>
+                        <td class="border p-2"><input type="number" class="w-full border p-1 qty" placeholder="Qty" /></td>
+                        <td class="border p-2"><input type="number" class="w-full border p-1 rate" placeholder="Rate" /></td>
+                        <td class="border p-2"><span class="amount">0.00</span></td>
+                        <td class="border p-2"><button class="deleteRow bg-red-500 text-white px-2 py-1 rounded">Delete</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Add Row Button -->
+            <div class="flex justify-end mb-4">
+                <button id="addRowButton" class="bg-blue-500 text-white px-4 py-2 rounded">Add Row</button>
+            </div>
+
+            <!-- JavaScript for Dynamic Rows and Calculation -->
+            <script>
+                $(document).ready(function () {
+                    // Add Row
+                    $('#addRowButton').click(function () {
+                        const row = $('tbody tr:first').clone();
+                        row.find('input').val('');
+                        row.find('.amount').text('0.00');
+                        $('#dataTable tbody').append(row);
+                    });
+
+                    // Calculate Amount on Change
+                    $(document).on('input', '.qty, .rate', function () {
+                        const row = $(this).closest('tr');
+                        const qty = parseFloat(row.find('.qty').val()) || 0;
+                        const rate = parseFloat(row.find('.rate').val()) || 0;
+                        const amount = qty * rate;
+                        row.find('.amount').text(amount.toFixed(2));
+                    });
+
+                    // Delete Row
+                    $(document).on('click', '.deleteRow', function () {
+                        if ($('#dataTable tbody tr').length > 1) {
+                            $(this).closest('tr').remove();
+                        } else {
+                            alert('At least one row must be present.');
+                        }
+                    });
+
+                    // Sync Site Name with Site ID
+                    $(document).on('change', '.siteId', function () {
+                        const siteId = $(this).val();
+                        const row = $(this).closest('tr');
+                        row.find('.siteName').val(siteId);
+                    });
+
+                    // Sync Site ID with Site Name
+                    $(document).on('change', '.siteName', function () {
+                        const siteId = $(this).val();
+                        const row = $(this).closest('tr');
+                        row.find('.siteId').val(siteId);
+                    });
+                });
+            </script>
+
+
+
+
+        </div>
+    </div>
+</body>
+</html>

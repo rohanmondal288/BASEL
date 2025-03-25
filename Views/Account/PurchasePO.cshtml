@@ -1,0 +1,44 @@
+﻿@model List<BASEL.Models.PurchasePOViewModel>
+
+<h2 class="text-xl font-bold mb-4">Purchase PO List</h2>
+
+@if (ViewBag.Error != null)
+{
+    <p class="text-red-500">@ViewBag.Error</p>
+}
+else if (Model != null && Model.Any())
+{
+    <table class="w-full border-collapse border border-gray-300">
+        <thead>
+            <tr>
+                <th class="border p-2">PO ID</th>
+                <th class="border p-2">Site ID</th>
+                <th class="border p-2">Site Name</th>
+                <th class="border p-2">Customer Code</th>
+                <th class="border p-2">Item Name</th>
+                <th class="border p-2">Unit</th>
+                <th class="border p-2">Rate</th>
+                <th class="border p-2">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="border p-2">@item.PoId</td>
+                    <td class="border p-2">@item.SiteId</td>
+                    <td class="border p-2">@item.SiteNm</td>
+                    <td class="border p-2">@item.CustItem</td>
+                    <td class="border p-2">@item.CustItemName</td>
+                    <td class="border p-2">@item.Unit</td>
+                    <td class="border p-2">@item.Rate</td>
+                    <td class="border p-2">@item.Amount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No records found.</p>
+}

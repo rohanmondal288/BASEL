@@ -15,6 +15,8 @@ namespace BASEL.Models
 
         public DbSet<Site> SITE { get; set; }
 
+        public DbSet<PurchaseDetails> PURCHASE_DETAILS { get; set; }
+
         //public DbSet<Site>SITE { get; set; }
 
 

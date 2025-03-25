@@ -6,6 +6,7 @@
     <title>Purchase Order - Project Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
@@ -127,14 +128,14 @@
                     </div>
                 </div>
 
-                <div class="mt-6">
+                <div class="mt-8">
                     <input type="checkbox" id="bulk-po" class="mr-2" />
                     <label for="bulk-po" class="text-gray-700">Comfirm</label>
                 </div>
 
                 <div class="mt-8 flex space-x-4">
                     <button id="clearButton" type="button" class="bg-gray-600 text-white px-6 py-2 rounded-lg">Clear</button>
-                    <button id="saveButton" type="button" class="bg-blue-600 text-white px-6 py-2 rounded-lg">Save</button>
+                    <button id="saveButton" type="button" class="bg-blue-600 text-white px-6 py-2 rounded-lg">Upload</button>
                     <button id="listButton" type="button" class="bg-blue-400 text-white px-6 py-2 rounded-lg">List</button>
                 </div>
             </form>
@@ -156,71 +157,102 @@
 
 
             <!--child Table -->
-            @{
-                ViewBag.Title = "Dashboard";
-            }
 
             <table class="w-full mt-8 border-collapse border border-gray-300" id="dataTable">
                 <thead>
                     <tr>
-                        <th class="border p-2">SITE ID</th>
-                        <th class="border p-2">SITE NAME</th>
-                        <th class="border p-2">CUSTOMER ITEM CODE</th>
-                        <th class="border p-2">CUSTOMER ITEM NAME</th>
-                        <th class="border p-2">UNIT</th>
-                        <th class="border p-2">QTY</th>
-                        <th class="border p-2">RATE</th>
-                        <th class="border p-2">AMOUNT</th>
-                        <th class="border p-2">ACTION</th>
+                        <th class="border p-2">PO ID</th>
+                        <th class="border p-2">Site ID</th>
+                        <th class="border p-2">Site Name</th>
+                        <th class="border p-2">Customer Code</th>
+                        <th class="border p-2">Item Name</th>
+                        <th class="border p-2">Unit</th>
+                        <th class="border p-2">Rate</th>
+                        <th class="border p-2">Amount</th>
+                        <th class="border p-2">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <!-- Site ID Dropdown -->
+                        <td class="border p-2">
+                           
+                            @Html.DropDownList("PoId", ViewBag.PoIds as List<SelectListItem>, "-- Select PO ID --", new { @class = "w-full border p-1 poId" })
+                        </td>
                         <td class="border p-2">
                             @Html.DropDownList("SiteId", ViewBag.SiteIds as List<SelectListItem>, "-- Select Site ID --", new { @class = "w-full border p-1 siteId" })
                         </td>
-
-                        <!-- Site Name Dropdown -->
                         <td class="border p-2">
                             @Html.DropDownList("SiteName", ViewBag.SiteNames as List<SelectListItem>, "-- Select Site Name --", new { @class = "w-full border p-1 siteName" })
                         </td>
-
-                        <td class="border p-2"><input type="text" class="w-full border p-1" placeholder="Item Code" /></td>
-                        <td class="border p-2"><input type="text" class="w-full border p-1" placeholder="Item Name" /></td>
-                        <td class="border p-2"><input type="text" class="w-full border p-1" placeholder="Unit" /></td>
-                        <td class="border p-2"><input type="number" class="w-full border p-1 qty" placeholder="Qty" /></td>
-                        <td class="border p-2"><input type="number" class="w-full border p-1 rate" placeholder="Rate" /></td>
-                        <td class="border p-2"><span class="amount">0.00</span></td>
+                        <td class="border p-2">
+                            @Html.DropDownList("SiteCode", ViewBag.SiteCodes as List<SelectListItem>, "-- Select Site Code --", new { @class = "w-full border p-1 siteCode" })
+                        </td>
+                        <td class="border p-2"><input type="text" id="itemNameInput" class="w-full border p-1 itemName" placeholder="Item Name" /></td>
+                        <td class="border p-2"><input type="number" id="Unit" class="w-full border p-1 unit" placeholder="Unit" min="1" /></td>
+                        <td class="border p-2"><input type="number" id="Rate" class="w-full border p-1 rate" placeholder="Rate" min="1 " /></td>
+                        <td class="border p-2"><span id="Amount" class="amount">0</span></td>
                         <td class="border p-2"><button class="deleteRow bg-red-500 text-white px-2 py-1 rounded">Delete</button></td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Add Row Button -->
-            <div class="flex justify-end mb-4">
+            <!-- Buttons --> 
+            
+           @* add row button working properly and just need to remove the tags 
+
+               <div class="flex justify-between mb-4">
                 <button id="addRowButton" class="bg-blue-500 text-white px-4 py-2 rounded">Add Row</button>
+            </div> 
+            
+            *@
+
+            <!-- Save Button -->
+            <div class="flex justify-end mb-4">
+                <button type="button" id="saveButton1" class="bg-blue-500 text-white px-4 py-2 rounded">Save Data</button>
+
             </div>
 
-            <!-- JavaScript for Dynamic Rows and Calculation -->
+            <!--List Button -->
+            <a href="@Url.Action("PurchasePO", "Account")">
+                <button type="button" id="listButton1" class="bg-blue-500 text-white px-4 py-2 rounded">
+                    List PurchasePO
+                </button>
+            </a>
+
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
             <script>
                 $(document).ready(function () {
                     // Add Row
-                    $('#addRowButton').click(function () {
-                        const row = $('tbody tr:first').clone();
-                        row.find('input').val('');
-                        row.find('.amount').text('0.00');
-                        $('#dataTable tbody').append(row);
-                    });
+
+                let rowCount = 1; // Start with 1 since you have one initial row
+
+                $('#addRowButton').click(function () {
+                    const row = $('tbody tr:first').clone();
+                    rowCount++;
+
+                    // Reset input values and amount
+                    row.find('input').val('');
+                    row.find('select').val('');
+                    row.find('.amount').text('0');
+
+                    // Update IDs to be unique using rowCount
+                    row.find('#Unit').attr('id', 'Unit' + rowCount);
+                    row.find('#Rate').attr('id', 'Rate' + rowCount);
+                    row.find('#Amount').attr('id', 'Amount' + rowCount);
+
+                    $('#dataTable tbody').append(row);
+                });
+
 
                     // Calculate Amount on Change
-                    $(document).on('input', '.qty, .rate', function () {
-                        const row = $(this).closest('tr');
-                        const qty = parseFloat(row.find('.qty').val()) || 0;
-                        const rate = parseFloat(row.find('.rate').val()) || 0;
-                        const amount = qty * rate;
-                        row.find('.amount').text(amount.toFixed(2));
-                    });
+                    $(document).on('change', '#Unit, #Rate', function () {
+                    const unit = BigInt($('#Unit').val() || 0);
+                    const rate = BigInt($('#Rate').val() || 0);
+                    const amount = unit * rate;
+
+                    // Display Amount
+                    $('#Amount').text(amount.toString());
+                });
 
                     // Delete Row
                     $(document).on('click', '.deleteRow', function () {
@@ -238,19 +270,96 @@
                         row.find('.siteName').val(siteId);
                     });
 
-                    // Sync Site ID with Site Name
+                    // Sync Site code with Site ID
                     $(document).on('change', '.siteName', function () {
                         const siteId = $(this).val();
                         const row = $(this).closest('tr');
                         row.find('.siteId').val(siteId);
                     });
+
+                    $(document).on('change', '.siteId', function () {
+                    const selectedSiteId = $(this).val();
+                    const row = $(this).closest('tr');
+                    row.find('.siteCode').val(selectedSiteId);
+                  
+                });
+
+                    // Save Data
+                    $("#saveButton1").click(function () {
+                        alert("hi");
+                        let data = [];
+                        let hasError = false;
+
+                        $('#dataTable tbody tr').each(function () {
+                           // debugger;
+                            const row = $(this);
+                            const poId = row.find('#PoId').val();
+                            console.log(poId)
+                            const siteId = row.find('#SiteId').val();
+                            console.log(siteId)
+                            const siteName = row.find('#SiteName').val();
+                            const siteCode = row.find('#SiteCode').val();
+                            const itemName = $('#itemNameInput').val();
+                            console.log(itemName)
+                            const unit = parseInt(row.find('#Unit').val()) || 0;
+                            const rate = parseInt(row.find('#Rate').val()) || 0;
+                            const amount = unit * rate;
+                            console.log(amount)
+
+                            if (!poId || !siteId || !siteName || !siteCode || !itemName || unit <= 0 || rate <= 0) {
+                                alert('Please fill all fields correctly in all rows.');
+                                hasError = true;
+                                return false;
+                            }
+                            
+                            data={
+                                id: 0,
+                                pO_ID: parseInt(poId),
+                                sitE_ID: parseInt(siteId),
+                                sitE_NM: siteName,
+                                cusT_ITEM: parseInt(siteCode),
+                                cusT_ITEM_NAME: itemName,
+                                unit: parseInt(unit),
+                                rate: parseInt(rate),
+                                amount: parseInt(amount)
+                            }
+                        });
+
+                        if (hasError) {
+                            
+                            return;
+                        }
+                        console.log(data)
+                        $.ajax({
+                            url: "http://localhost:5141/api/purchase-po/AddPurchasePo",
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data:  JSON.stringify(data),
+                            // success: function (response) {
+                            //     alert('Data saved successfully!');
+                            //     console.log(response);
+                            // },
+                            // error: function (error) {
+                            //     alert('Error saving data');
+                            //     console.error(error);
+                            // }
+                            success: function (response) {
+                                alert('Data saved successfully!');
+                                console.log(response);
+                            },
+                            error: function (error) {
+                                
+                                // Display the status code and response text to have more information about the error.
+                                alert('Error saving data: Status ' + error.status + ', Response: ' + error.responseText);
+                                console.error(error);
+                            }
+                        });
+                    });
                 });
             </script>
-
-
 
 
         </div>
     </div>
 </body>
-</html>
+</html> 

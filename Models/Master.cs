@@ -11,5 +11,6 @@ namespace BASEL.Models
         public long ID { get; set; }
 
         public string? NAME { get; set; }
+        public string? CUSTOMER_CODE { get; set; }
     }
 }

@@ -1,44 +1,85 @@
-﻿@model List<BASEL.Models.PurchasePOViewModel>
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Order List</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
 
-<h2 class="text-xl font-bold mb-4">Purchase PO List</h2>
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
 
-@if (ViewBag.Error != null)
-{
-    <p class="text-red-500">@ViewBag.Error</p>
-}
-else if (Model != null && Model.Any())
-{
-    <table class="w-full border-collapse border border-gray-300">
-        <thead>
-            <tr>
-                <th class="border p-2">PO ID</th>
-                <th class="border p-2">Site ID</th>
-                <th class="border p-2">Site Name</th>
-                <th class="border p-2">Customer Code</th>
-                <th class="border p-2">Item Name</th>
-                <th class="border p-2">Unit</th>
-                <th class="border p-2">Rate</th>
-                <th class="border p-2">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .error-message {
+            color: #ff0000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    @model List<BASEL.Models.PurchasePOViewModel>
+
+    <h2 class="text-2xl font-bold mb-4">Purchase Order List</h2>
+
+    @if (ViewBag.Error != null)
+    {
+        <p class="error-message">@ViewBag.Error</p>
+    }
+    else if (Model == null || !Model.Any())
+    {
+        <p>No data available.</p>
+    }
+    else
+    {
+        <table>
+            <thead>
                 <tr>
-                    <td class="border p-2">@item.PoId</td>
-                    <td class="border p-2">@item.SiteId</td>
-                    <td class="border p-2">@item.SiteNm</td>
-                    <td class="border p-2">@item.CustItem</td>
-                    <td class="border p-2">@item.CustItemName</td>
-                    <td class="border p-2">@item.Unit</td>
-                    <td class="border p-2">@item.Rate</td>
-                    <td class="border p-2">@item.Amount</td>
+                    <th>ID</th>
+                    <th>PO ID</th>
+                    <th>Site ID</th>
+                    <th>Site Name</th>
+                    <th>Customer Code</th>
+                    <th>Item Name</th>
+                    <th>Unit</th>
+                    <th>Rate</th>
+                    <th>Amount</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No records found.</p>
-}
+            </thead>
+            <tbody>
+                @foreach (var po in Model)
+                {
+                    <tr>
+                        <td>@po.Id</td>
+                        <td>@po.PoId</td>
+                        <td>@po.SiteId</td>
+                        <td>@po.SiteNm</td>
+                        <td>@po.CustomerCode</td>
+                        <td>@po.CustItemName</td>
+                        <td>@po.Unit</td>
+                        <td>@po.Rate</td>
+                        <td>@po.Amount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+</body>
+</html>

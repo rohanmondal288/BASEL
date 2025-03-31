@@ -1,28 +1,25 @@
-﻿                                                                              using BASEL.Models;
+﻿using BASEL.Models;
 using Microsoft.AspNetCore.Mvc;
-
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace BASE.Controllers
+namespace BASEL.Controllers
 {
     public class AccountController : Controller
     {
-        //for db connection while dropdown
         private readonly DatabaseConnection _context;
         private static readonly HttpClient _httpClient = new HttpClient();
-
-
 
         public AccountController(DatabaseConnection context)
         {
             _context = context;
         }
 
-        public IActionResult Login()
-        {
-            return View();
-        }
+        // Login Page
+        public IActionResult Login() => View();
 
         [HttpPost]
         public IActionResult Login(string username, string password)
@@ -31,30 +28,30 @@ namespace BASE.Controllers
             {
                 return RedirectToAction("Dashboard", "Account");
             }
-
             ViewBag.ErrorMessage = "Invalid username or password.";
             return View();
         }
 
+        // Dashboard with Dropdowns and Table Data
         public IActionResult Dashboard()
         {
-            //FOR LABEL
-            // Populate Master, Project, and Circle dropdowns
+            // Populate Dropdowns
             ViewBag.MASTER = new SelectList(_context.MASTER.ToList(), "NAME", "NAME");
             ViewBag.PROJECT = new SelectList(_context.PROJECT.ToList(), "NAME", "NAME");
             ViewBag.CIRCLE = new SelectList(_context.CIRCLE.ToList(), "NAME", "NAME");
 
-            // Fetch SITE data for Site ID and Site Name
             var siteList = _context.SITE.ToList();
-
-
-            //FETCH FROM PURCHASE DETAILS 
             var purchasedetailsList = _context.PURCHASE_DETAILS.ToList();
+            var masterList = _context.MASTER.ToList();
 
+            // Populate PO IDs
+            ViewBag.PoIds = purchasedetailsList.Select(p => new SelectListItem
+            {
+                Value = p.PO_ID.ToString(),
+                Text = p.PO_ID.ToString()
+            }).ToList();
 
-
-            //FOR TABEL
-            // Separate for Site ID and Site Name and CODE 
+            // Populate Site Data
             ViewBag.SiteIds = siteList.Select(s => new SelectListItem
             {
                 Value = s.ID.ToString(),
@@ -63,27 +60,21 @@ namespace BASE.Controllers
 
             ViewBag.SiteNames = siteList.Select(s => new SelectListItem
             {
-                Value = s.ID.ToString(),
+                Value = s.NAME.ToString(),
                 Text = s.NAME
             }).ToList();
 
-            ViewBag.SiteCodes = siteList.Select(s => new SelectListItem
+            // Populate Customer Codes from MASTER Table
+            ViewBag.CustomerCodes = masterList.Select(s => new SelectListItem
             {
-                Value = s.ID.ToString(),
-                Text = s.CODE.ToString()
+                Value = s.CUSTOMER_CODE.ToString(),
+                Text = s.CUSTOMER_CODE
             }).ToList();
-
-            //POID FETCHING CHILD TABLE
-            ViewBag.PoIds = purchasedetailsList.Select(p => new SelectListItem
-            {
-                Value = p.PO_ID.ToString(),
-                Text = p.PO_ID.ToString()
-            }).ToList();
-
-
 
             return View();
         }
+
+
 
 
         public async Task<IActionResult> PurchasePO()
@@ -102,24 +93,12 @@ namespace BASE.Controllers
                 var purchasePOList = JsonConvert.DeserializeObject<List<PurchasePOViewModel>>(data);
                 return View(purchasePOList);
             }
-            catch (HttpRequestException ex)
-            {
-                ViewBag.Error = $"HTTP Error: {ex.Message}";
-            }
-            catch (JsonSerializationException ex)
-            {
-                ViewBag.Error = $"Serialization Error: {ex.Message}";
-            }
             catch (Exception ex)
             {
                 ViewBag.Error = $"Unexpected Error: {ex.Message}";
+                return View(new List<PurchasePOViewModel>());
             }
-
-            return View(new List<PurchasePOViewModel>());
         }
-
-
-
 
     }
 }
